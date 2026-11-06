@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="sw"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KODI MAHIRI 2.1 | Prototype ya majaribio</title>
+<style>
+:root{--bg:#f2f0e8;--tx:#1b231e;--mu:#5c675f;--cd:#fff;--bd:#d5d2c4;--ac:#1d6b49;--bad:#b3261e;--warn:#a66300}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;--bg:#13181a;--tx:#e8ece9;--mu:#98a39b;--cd:#1d2427;--bd:#333c3f;--ac:#5fc79a;--bad:#ff8a80;--warn:#ffc266}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 "Trebuchet MS",Verdana,sans-serif;padding:18px}
+h1{font-size:24px;margin:0}h2{font-size:17px;margin:0 0 10px}.sub{color:var(--mu);margin:2px 0 16px}
+.top{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;max-width:1250px}
+.phone{width:310px;background:#2b2f33;border-radius:30px 30px 44px 44px;padding:18px 16px 22px;flex:none}
+.screen{background:#b9d3a0;color:#1b2a14;font:13px/1.4 "Courier New",monospace;height:300px;border-radius:6px;padding:8px;border:4px solid #1b1f22;overflow:auto;white-space:pre-wrap}
+.in{background:#b9d3a0;color:#1b2a14;font:15px "Courier New",monospace;border:4px solid #1b1f22;border-top:0;padding:3px 8px;height:30px;border-radius:0 0 6px 6px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.keys button{height:44px;border:0;border-radius:10px;background:#4a5056;color:#fff;font:600 17px inherit;cursor:pointer}
+.keys .go{background:#2e8b57}.keys .end{background:#b3261e}.keys .clr{background:#7a6a2a}
+button:focus-visible,input:focus-visible{outline:3px solid #ffd54a;outline-offset:2px}
+.side{width:310px;flex:none}.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.main{flex:1;min-width:320px}
+.row{display:flex;gap:8px}.row input{flex:1;padding:8px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx);font:inherit}
+.btn{border:1px solid var(--ac);background:transparent;color:var(--ac);border-radius:8px;padding:7px 12px;font:600 13px inherit;cursor:pointer;margin:6px 6px 0 0}.btn.d{border-color:var(--bad);color:var(--bad)}.btn.on{background:var(--ac);color:var(--bg)}
+.sms{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;font-size:13px;margin-top:10px;min-height:44px}
+.hint{font-size:13px;color:var(--mu);margin-top:8px}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-weight:700;font-size:13px;border:1px solid}
+.SAWA{color:var(--ac)}.KAGUA{color:var(--warn)}.HATARI{color:var(--bad)}
+.bar{height:22px;border-radius:5px;background:var(--ac);color:#fff;font-size:12px;padding:2px 8px;white-space:nowrap;margin:3px 0;min-width:60px}
+.box{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:5px 7px;border-bottom:1px solid var(--bd);vertical-align:top}
+.geo{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.reg{background:var(--cd);border:1px solid var(--bd);border-radius:10px;padding:10px 12px}.reg b{font-size:15px}
+.chip{display:inline-block;margin:3px 3px 0 0;padding:2px 9px;border:1px solid var(--bd);border-radius:99px;font-size:13px}
+.sec{max-width:1250px;margin-top:8px}
+@media(max-width:760px){body{padding:10px}.top{display:block}.top>div,.side,.main{width:100%;min-width:0}.phone{width:min(310px,100%);margin:0 auto}.card{padding:12px}.main{margin-top:12px}.row input{min-width:0}}
+</style></head><body>
+<h1>KODI MAHIRI 2.1</h1>
+<p class="sub">Jukwaa la huduma za kodi jumuishi: USSD • IVR/Sauti • SMS • Web</p>
+<div class="card" style="border:2px solid var(--warn);background:var(--cd)"><b>⚠ PROTOTYPE / DATA ZA MFANO</b><div class="hint">Huu ni mfumo wa majaribio unaoendeshwa kwenye wavuti. Haujaunganishwa na TRA, TCRA, kampuni za simu, benki, EFDMS au mifumo ya malipo. Miamala na takwimu za uchambuzi ni za kubuni kwa ajili ya demo. Kiasi cha kodi na rejea zinazoonyeshwa si tathmini wala Control Number rasmi ya TRA. <span id="llm"></span></div></div>
+<div class="top">
+ <div>
+  <div class="card"><h2>Njia ya 1: USSD — mfano wa *150#</h2><div class="hint">Menyu ya vitufe kwa simu ya kawaida. Hii ni simulation ya wavuti.</div><div class="phone"><div class="screen" id="scr" aria-live="polite"></div><div class="in" id="inp"></div><div class="keys" id="keys"></div></div></div>
+  <div class="sms" id="sms">📩 SMS zitaonekana hapa.</div><div class="hint" id="hint"></div>
+ </div>
+ <div class="side">
+  <div class="card"><h2>Njia ya 2: IVR / 0800 — mfano wa mazungumzo</h2>
+   <div class="row"><input id="say" placeholder="Niko Mafinga Iringa, duka, elfu themanini kwa siku" aria-label="Ujumbe"><button class="btn" id="send">Tuma</button></div>
+   <button class="btn" id="mic">🎤 Sauti: IMEWASHWA</button>
+   <div class="hint">Hapa unaiga simu ya bure ya 0800. Unaweza kuandika au kutumia sauti ya browser (Chrome inapoiunga mkono). Bila API ya AI, mfumo hutumia kanuni za Kiswahili zilizomo ndani.</div></div>
+  <div class="card"><h2>Njia ya 3: SMS — mfano wa ujumbe mfupi</h2>
+   <div class="hint">Tuma ujumbe wa maandishi kwa msaidizi wa demo. Katika uzalishaji, SMS itahitaji SMS Gateway na namba fupi zilizoidhinishwa.</div>
+   <div id="smslog" class="sms" style="height:150px;overflow:auto;white-space:pre-wrap">KODI MAHIRI SMS DEMO&#10;Andika: Niko Mafinga Iringa, nauza duka, mauzo elfu themanini kwa siku.</div>
+   <div class="row" style="margin-top:8px"><input id="smsinput" placeholder="Andika SMS yako..." aria-label="Ujumbe wa SMS"><button class="btn" id="smssend">Tuma SMS</button></div>
+   <button class="btn" id="smsreset">Anza upya SMS</button>
+  </div>
+  <div class="card"><h2>Viwango vya kodi — mfano wa kanuni</h2><div class="hint" style="margin:0">KANUNI ZA MFANO (thibitisha na mtaalamu wa kodi kabla ya matumizi): mauzo ya mwaka:<br>Hadi 4M: hakuna<br>4M–7M: 100,000 (bila rekodi) au 3% ya zaidi ya 4M<br>7M–11M: 250,000 au 90,000 + 3% ya zaidi ya 7M<br>11M–200M: 4% ya mauzo<br>Misamaha, biashara mpya na sekta maalumu hazijatekelezwa kikamilifu kwenye demo hii.</div></div>
+ </div>
+ <div class="main">
+  <div class="card" id="an"><h2>Uchambuzi wa majaribio</h2><div class="hint">Bado hakuna ukadiriaji. Tumia mojawapo ya njia tatu.</div></div>
+  <div class="card"><h2>Msaada wa mlipakodi — elimu ya kodi</h2><div class="hint">Majibu haya ni maelezo ya jumla ya demo, si ushauri rasmi wa TRA.</div>
+   <details><summary>Kwa nini nihifadhi kumbukumbu za biashara?</summary><p>Kumbukumbu za mauzo, manunuzi, risiti na malipo husaidia kujaza taarifa kwa usahihi na kueleza tofauti wakati wa uhakiki.</p></details>
+   <details><summary>Nifanye nini nikiona taarifa si sahihi?</summary><p>Hakikisha chanzo cha taarifa, hifadhi vielelezo na tumia njia rasmi ya TRA ya marekebisho au pingamizi. Fomu iliyo hapa ni demo tu.</p></details>
+   <details><summary>Je, kupokea pesa zote ni mauzo?</summary><p>Si lazima. Mkopo, uhamisho wa mmiliki, refund na reversal vinaweza kuwa tofauti na mauzo. Vinahitaji kutambuliwa kwa ushahidi na muktadha.</p></details>
+  </div>
+  <div class="card"><h2>Marekebisho na pingamizi — demo</h2><div class="hint">Mlipakodi anaweza kuonyesha mfano wa kupinga taarifa. Ombi hili linabaki kwenye faili la demo; halitumwi TRA.</div>
+   <div class="row"><input id="appealref" placeholder="Rejea ya demo (hiari)" aria-label="Rejea ya demo"></div>
+   <textarea id="appealmsg" rows="3" style="width:100%;margin-top:8px;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--cd);color:var(--tx);font:inherit" placeholder="Eleza taarifa unazotaka kusahihisha..."></textarea>
+   <button class="btn" id="appealsend">Wasilisha pingamizi la demo</button><div id="appealnotice" class="hint"></div>
+   <div id="appeallist" class="hint"></div>
+  </div>
+  <div class="card"><h2>Dashibodi ya afisa — ufuatiliaji wa kesi</h2>
+   <div class="hint">Malipo yaliyolipwa yatahesabiwa tu yakithibitishwa na mtoa huduma rasmi. Kwa sasa rekodi zote ni “hazijathibitishwa”. Hatari ni kiashiria cha ukaguzi, si hukumu ya ukwepaji.</div>
+   <div class="row" style="flex-wrap:wrap"><span class="chip">Waliolipa: <b id="opaid">0</b></span><span class="chip">Bila uthibitisho: <b id="ounpaid">0</b></span><span class="chip">Ukaguzi: <b id="oreview">0</b></span><span class="chip">Pingamizi: <b id="oappeals">0</b></span></div>
+   <div class="box"><table><thead><tr><th>Rejea</th><th>Mauzo yaliyotajwa</th><th>Ushahidi wa Lipa Namba</th><th>Kodi ya awali</th><th>Pendekezo (ukaguzi)</th><th>Malipo</th><th>Hatua ya afisa</th></tr></thead><tbody id="officerrows"></tbody></table></div><div id="officernotice" class="hint"></div>
+  </div>
+  <div class="card"><h2>Dashibodi ya mfano (daftari la audit la demo)</h2>
+   <div class="box"><table><thead><tr><th>#</th><th>Eneo</th><th>Sekta</th><th>Mauzo/mwaka</th><th>Kodi/mwaka</th><th>Hali</th><th>Hatari</th></tr></thead><tbody id="rows"></tbody></table></div>
+   <button class="btn" id="vf">Hakiki mnyororo</button><button class="btn d" id="tp">Badilisha rekodi (admin demo tu)</button><button class="btn" id="rs">Futa daftari (admin demo tu)</button><div id="st" class="hint"></div></div>
+ </div>
+</div>
+<div class="sec card"><h2>Sekta na jinsi zinavyokadiriwa</h2><div class="box"><table><thead><tr><th>Sekta</th><th>Siku/mwezi</th><th>Faida ya jumla</th><th>Lipa Namba ya biashara (Till/Paybill)</th><th>Msimu</th><th>Njia</th></tr></thead><tbody id="sectors"></tbody></table></div>
+<div class="hint">Mauzo ya mwaka ni mfano wa makadirio. Lipa Namba hapa inamaanisha namba ya biashara (Till/Paybill), si namba binafsi ya simu. Miamala ya Till/Paybill na manunuzi yanayotumika kwenye demo yanatengenezwa na code; hayajatoka benki, mitandao ya simu, TRA au EFDMS. Asilimia za sekta ni assumptions za majaribio, si takwimu rasmi.</div></div>
+<div class="sec"><h2>Mikoa yote 31 na wilaya zake</h2><div class="geo" id="geo"></div></div>
+<script>
+const $=i=>document.getElementById(i),fm=n=>n==null?"-":Math.round(n).toLocaleString("en-US");
+let mode="idle",dial="",buf="",sid=Math.random().toString(36).slice(2),micOn=true,rec=null,transcript="",smsSid=Math.random().toString(36).slice(2);
+const api=(p,b)=>fetch(p,b?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)}:{}).then(r=>r.json());
+const scr=t=>{$("scr").textContent=t;$("scr").scrollTop=1e5},inp=()=>$("inp").textContent=(mode==="idle"||mode==="done"?dial:buf);
+/* --- USSD --- */
+async function ussd(text,reset){const r=await api("/api/ussd",{sid,text,reset});scr(r.msg);buf="";inp();if(r.end){mode="done";showResult(r.result,r.sms)}}
+/* --- IVR demo: browser inasoma na kusikiliza sauti --- */
+function speak(t){return new Promise(res=>{if(!window.speechSynthesis||!micOn)return res();speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="sw-TZ";u.rate=.95;u.onend=u.onerror=res;speechSynthesis.speak(u)})}
+function listen(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR||!micOn||mode!=="ivr"){$("hint").textContent="Andika kwenye kisanduku au tumia vitufe, kisha #.";return}
+ try{rec=new SR();rec.lang="sw-TZ";rec.interimResults=false;rec.onstart=()=>$("hint").textContent="🎤 Nasikiliza... ongea kawaida.";
+ rec.onresult=e=>turn(e.results[0][0].transcript);rec.onerror=()=>$("hint").textContent="Sijasikia. Andika kwenye kisanduku au sema tena.";rec.onend=()=>{};rec.start()}catch(e){}}
+function stopAll(){try{rec&&rec.abort()}catch(e){}window.speechSynthesis&&speechSynthesis.cancel()}
+async function turn(text){stopAll();if(text){transcript+="\nWewe: "+text}scr(transcript+"\n…");const r=await api("/api/chat",{sid,text});
+ transcript+=(text?"\n":"")+"\nKODI MAHIRI: "+r.reply;scr(transcript);buf="";inp();
+ if(r.result){mode="done";showResult(r.result,r.sms);await speak(r.reply);return}
+ await speak(r.reply);if(mode==="ivr")listen()}
+/* --- Vitufe --- */
+function press(k){if(mode==="idle"||mode==="done"){mode="idle";dial=(dial+k).slice(0,12);inp();return}
+ if(k==="#"){if(buf){mode==="ivr"?turn(buf):ussd(buf)}return}buf+=k;inp()}
+function go(){if(mode==="idle"){
+  if(dial==="*150#"){mode="ussd";sid=Math.random().toString(36).slice(2);dial="";ussd("",true)}
+  else if(dial.startsWith("0800")){mode="ivr";sid=Math.random().toString(36).slice(2);dial="";transcript="📞 0800-KODI";turn("")}
+  else scr("Namba si sahihi.\nPiga *150# au 0800.");return}
+ if(mode==="ussd"&&buf)ussd(buf)}
+function end(){stopAll();mode="idle";dial="";buf="";transcript="";scr("Piga *150# au 0800\nkisha kitufe kijani.");$("hint").textContent="";inp()}
+["1","2","3","4","5","6","7","8","9","*","0","#"].forEach(k=>{const b=document.createElement("button");b.textContent=k;b.onclick=()=>press(k);$("keys").appendChild(b)});
+[["Piga","go",go],["C","clr",()=>{if(mode==="idle")dial=dial.slice(0,-1);else buf=buf.slice(0,-1);inp()}],["Maliza","end",end]].forEach(([t,c,f])=>{const b=document.createElement("button");b.textContent=t;b.className=c;b.onclick=f;$("keys").appendChild(b)});
+$("send").onclick=()=>{const v=$("say").value.trim();if(!v)return;$("say").value="";if(mode==="ivr")turn(v);else $("hint").textContent="Piga 0800 kwanza ili kuongea na msaidizi."};
+$("say").onkeydown=e=>{if(e.key==="Enter")$("send").click()};
+$("mic").onclick=()=>{micOn=!micOn;$("mic").textContent="🎤 Sauti: "+(micOn?"IMEWASHWA":"IMEZIMWA");$("mic").classList.toggle("on",!micOn);if(!micOn)stopAll()};
+/* --- SMS: njia ya tatu ya majaribio --- */
+async function sendSms(){const v=$("smsinput").value.trim();if(!v)return;$("smsinput").value="";const log=$("smslog");log.textContent+="\n\nWEWE (SMS): "+v;try{const r=await api("/api/sms",{sid:smsSid,text:v});log.textContent+="\nKODI MAHIRI (SMS DEMO): "+(r.reply||"Hakuna jibu.");if(r.sms)log.textContent+="\nUJUMBE WA MATOKEO: "+r.sms;log.scrollTop=log.scrollHeight;if(r.result)showResult(r.result,r.sms)}catch(e){log.textContent+="\nHitilafu ya demo. Jaribu tena."}}
+$("smssend").onclick=sendSms;$("smsinput").onkeydown=e=>{if(e.key==="Enter")sendSms()};$("smsreset").onclick=()=>{smsSid=Math.random().toString(36).slice(2);$("smslog").textContent="KODI MAHIRI SMS DEMO\nAnza mazungumzo mapya. Andika biashara, eneo na mauzo."};
+/* --- Matokeo na dashibodi --- */
+function showResult(r,sms){$("sms").textContent="📩 SMS YA MFANO: "+sms;loadLedger();
+ const mx=Math.max(r.declared_annual,r.lipa_annual||0,r.purchases_annual||0,r.assessed_annual)||1,bar=(l,v,c)=>v==null?"":`<div class="bar" style="width:${Math.max(18,v/mx*100)}%;background:${c||"var(--ac)"}">${l}: ${fm(v)}</div>`;
+ $("an").innerHTML=`<h2>Uchambuzi wa majaribio <span class="pill ${r.status}">${r.status}</span></h2><div class="hint"><b>SIMULATED DEMO DATA:</b> hakuna data halisi ya Lipa Namba au EFD iliyotumika. Uchanganuzi huu si uamuzi wa kodi.</div>
+ <div class="hint" style="margin:0 0 6px">${r.sector}, ${r.district}, ${r.region}. Msimu wa sasa: ×${r.season_mult}. Kiwango cha mfano: ${Math.round(r.confidence*100)}%${r.risk?`. Alama ya hatari: <b>${r.risk}/100</b>`:""}</div>
+ ${bar("Aliyotaja (mwaka)",r.declared_annual,"#8a8f5a")}${bar("Lipa Namba ya biashara (Till/Paybill) — data ya mfano",r.lipa_annual,"#2b7fb8")}${bar("Manunuzi ya biashara — data ya mfano",r.purchases_annual,"#8a5ab8")}${bar("Mauzo yaliyotumika kwenye kodi ya awali",r.assessed_annual)}${r.review_required?bar("Pendekezo la mauzo baada ya uhakiki wa afisa (SI kodi ya mwisho)",r.proposed_assessed_annual,"#a66300"):""}
+ <p><b>Kodi ya awali: TZS ${fm(r.tax_annual)}/mwaka</b> (robo: ${fm(r.tax_quarter)}). Ukihifadhi rekodi: TZS ${fm(r.tax_with_records)}. Rejea ya majaribio (si Control Number ya TRA): <b>${r.control}</b></p>
+ ${r.review_required?`<div class="hint"><b>INAHITAJI UKAGUZI:</b> pendekezo la kodi baada ya ukaguzi ni TZS ${fm(r.proposed_tax_annual)} kwa mwaka. Halijatumika kwenye kodi ya sasa; linahitaji ushahidi uliothibitishwa, mapitio ya afisa na nafasi ya mlipakodi kujibu/pinga.</div>`:""}
+ ${r.ratio?`<div class="hint">Uwiano wa takwimu za demo ÷ mauzo aliyotaja = ${r.ratio}. Siku za miamala isiyo ya kawaida: ${r.spikes}. Namba ya biashara ya mfano: ${r.evidence.business_lipa_namba}. ${r.evidence.suppliers.length?"Wasambazaji wa mfano: "+r.evidence.suppliers.map(s=>s.supplier+" ("+s.invoices+" ankara)").join(", ")+".":""}</div>`:""}
+ ${r.evidence&&r.evidence.transaction_intelligence?`<div class="card" style="margin-top:10px"><b>Transaction Intelligence — data bandia</b><div class="hint">${r.evidence.transaction_intelligence.count} miamala ya kubuni imeainishwa kwa kanuni zinazoelezeka. Si Big Data wala data ya taasisi.</div>${Object.entries(r.evidence.transaction_intelligence.totals_tzs).map(([k,v])=>`<div class="hint">• ${k.replaceAll("_"," ")}: TZS ${fm(v)}</div>`).join("")}</div>`:""}
+ ${(r.notes||[]).map(n=>`<div class="hint">• ${n}</div>`).join("")}`}
+async function loadOfficer(){try{const d=await api("/api/officer/dashboard");$("opaid").textContent=d.paid;$("ounpaid").textContent=d.unverified;$("oreview").textContent=d.review;$("oappeals").textContent=d.appeals;$("officernotice").textContent=d.notice;$("officerrows").innerHTML=d.items.map(x=>`<tr><td>${x.record_id}</td><td>${fm(x.declared_annual)}</td><td>${fm(x.evidence_annual)}</td><td>${fm(x.tax_annual)}</td><td>${x.review_required?fm(x.proposed_assessed_annual)+" / kodi "+fm(x.proposed_tax_annual):"Hakuna"}</td><td>${x.payment_status}</td><td><select id="dec-${x.record_id}"><option value="CONFIRM_DECLARED">Thibitisha kilichotajwa</option><option value="PROPOSE_REVIEW">Pendekeza ukaguzi</option><option value="REQUEST_INFO">Omba maelezo</option><option value="CLOSE_NO_CHANGE">Funga bila mabadiliko</option></select><button class="btn" onclick="sendOfficerDecision('${x.record_id}')">Hifadhi</button></td></tr>`).join("")||'<tr><td colspan="7">Hakuna kesi bado.</td></tr>'}catch(e){$("officernotice").textContent="Dashibodi haipatikani."}}
+window.sendOfficerDecision=async function(id){const decision=$("dec-"+id).value;const r=await api("/api/officer/decision",{record_id:id,decision,note:"Uamuzi wa mfano wa afisa"});$("officernotice").textContent=r.notice||r.error;loadOfficer()};
+async function loadLedger(){const d=await api("/api/ledger");$("rows").innerHTML=d.records.map(x=>{const b=x.body;return`<tr><td>${x.id}</td><td>${b.district}, ${b.region}</td><td>${b.sector}</td><td>${fm(b.assessed_annual)}</td><td>${fm(b.tax_annual)}</td><td class="${b.status}">${b.status}</td><td>${b.risk}</td></tr>`}).join("")||'<tr><td colspan="7">Hakuna rekodi bado.</td></tr>'}
+$("vf").onclick=async()=>{const r=await api("/api/ledger/verify");$("st").innerHTML=r.count?(r.valid?'<b class="SAWA">Mnyororo ni salama. Rekodi '+r.count+' zimehakikiwa.</b>':'<b class="HATARI">Mnyororo umevunjika kwenye rekodi #'+r.bad+'. Data imechezewa.</b>'):"Hakuna rekodi."};
+$("tp").onclick=async()=>{const r=await api("/api/ledger/tamper",{});await loadLedger();$("st").textContent=r.error||"Rekodi imebadilishwa. Bonyeza Hakiki mnyororo."};
+$("rs").onclick=async()=>{const r=await api("/api/ledger/reset",{});loadLedger();$("st").textContent=r.error||"Daftari limefutwa kwenye demo.";if(!r.error)$("an").innerHTML="<h2>Uchambuzi wa majaribio</h2>"};
+async function loadAppeals(){try{const r=await api("/api/appeals");$("appeallist").innerHTML="<b>Maombi ya mfano yaliyopokelewa:</b> "+(r.items.length? r.items.map(x=>`<div class="sms">${x.id} · ${x.status}<br>${x.message}</div>`).join("") : "Hakuna bado.")}catch(e){$("appeallist").textContent="Orodha haipatikani."}}
+$("appealsend").onclick=async()=>{const message=$("appealmsg").value.trim();const reference=$("appealref").value.trim();try{const r=await api("/api/appeal",{reference,message});if(r.error){$("appealnotice").textContent=r.error;return}$("appealnotice").textContent=r.notice+" Rejea: "+r.item.id;$("appealmsg").value="";loadAppeals()}catch(e){$("appealnotice").textContent="Imeshindikana kuhifadhi ombi la demo."}};
+(async()=>{const g=await api("/api/geo");$("geo").innerHTML=Object.entries(g).map(([r,d])=>`<div class="reg"><b>${r}</b> <span class="hint">(${d.length})</span><br>${d.map(x=>`<span class="chip">${x}</span>`).join("")}</div>`).join("");
+ const s=await api("/api/sectors");$("sectors").innerHTML=s.map(x=>`<tr><td>${x.name}${x.note?`<div class="hint">${x.note}</div>`:""}</td><td>${x.days}</td><td>${x.excluded?"-":Math.round(x.margin*100)+"%"}</td><td>${Math.round(x.digital*100)}%</td><td>${x.season}</td><td>${x.excluded?"Self-assessment":x.purch?"Mauzo + Till/Paybill demo + manunuzi demo":"Mauzo + Till/Paybill demo"}</td></tr>`).join("");
+ const st=await api("/api/status");$("llm").textContent=st.llm?"Msaidizi wa nje (API) umewashwa — si sehemu ya msingi ya demo.":"Msaidizi wa ndani wa kanuni za Kiswahili unatumika; AI ya nje haijaunganishwa.";
+ end();loadLedger();loadAppeals();loadOfficer()})();
+</script></body></html>

@@ -1,0 +1,22 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+android {
+    namespace 'tz.agripocket.kodimahiri'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'tz.agripocket.kodimahiri'
+        minSdk 24
+        targetSdk 35
+        versionCode 21
+        versionName '2.1.0'
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86_64' }
+    }
+}
+
+python {
+    version '3.11'
+}
